@@ -125,13 +125,13 @@ Validation errors (unknown session 404, empty message 422, already generating 40
 before the stream starts. The first message also sets the session title (first 40 chars). The first answer after
 start-up waits for llama-server to load (a few seconds on GPU).
 
-```ts
+```js
 // minimal SSE-over-fetch reader
-async function* sse(url: string, token: string, body?: unknown) {
+async function* sse(url, token, body) {
   const res = await fetch(url, { method: body ? "POST" : "GET", headers: { Authorization: `Bearer ${token}`,
     "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   if (!res.ok) throw await res.json();               // {error:{code,message,details}}
-  const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
   let buf = "", event = "message";
   for (;;) {
     const { value, done } = await reader.read(); if (done) return;

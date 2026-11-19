@@ -231,6 +231,7 @@ citations, folder watching, model switching, purge and re-index.
 
 - [docs/API.md](docs/API.md): API guide for the frontend (onboarding flow, endpoints, live event streams)
 - [docs/openapi.json](docs/openapi.json): machine-readable API contract
+- [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md): step-by-step backend test on the demo PC (also written for an AI assistant)
 - [backend/README.md](backend/README.md): backend setup, configuration, packaging and design decisions
 
 ## Repository structure
