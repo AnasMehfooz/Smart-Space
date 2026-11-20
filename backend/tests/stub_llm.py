@@ -17,6 +17,8 @@ RAG_ANSWER = "The monthly rent is 950 euros [1]."
 REFUSAL_ANSWER = "I could not find it in the indexed files [1]."
 DRIFTED_QUERY = "Mietvertrag Kaution Miete"
 NAME_ONLY_ANSWER = "The file Mietvertrag_2024.pdf says the rent is 950 euros."
+NUMBERS_ONLY_ANSWER = "Your monthly rent is 950,00 Euro and the deposit is 2.850,00 Euro."
+UNKNOWN_NUMBERS_ANSWER = "The total is 123,45 Euro."
 
 
 def _doc_type(text: str) -> str:
@@ -55,6 +57,10 @@ def create_stub_app(delay_s: float = 0.0) -> FastAPI:
                 content = REFUSAL_ANSWER
             elif "NAME_ONLY" in question:  # names the file but forgets the [n] marker
                 content = NAME_ONLY_ANSWER
+            elif "NUMBERS_ONLY" in question:  # right facts, but neither [n] nor a file name
+                content = NUMBERS_ONLY_ANSWER
+            elif "UNKNOWN_NUMBERS" in question:  # numbers that are in no source
+                content = UNKNOWN_NUMBERS_ANSWER
             else:
                 content = RAG_ANSWER
         else:
