@@ -121,7 +121,7 @@ speed_bps, eta_s, source}` (every 500 ms; `source: "local"` while a copy already
 | `meta` | `{message_id, user_message_id, model_id, search_only}`; `search_only: true` → show "Install a language model to get answers" |
 | `files` | `{results: [...search result objects...]}` (top 5 file cards, always sent) |
 | `token` | `{t: "The rent is "}` (many) |
-| `sources` | `{citations: [{n, file_id, chunk_id, page, name, rel_path, score}]}` maps `[n]` in the answer. An answer that says it could not find anything has **no** citations: show the `files` cards as "possibly related" instead |
+| `sources` | `{citations: [{n, file_id, chunk_id, page, name, rel_path, score}]}` maps `[n]` in the answer. When the model forgets the `[n]` markers, the sources are still filled in: from a file name in the answer, or else from the numbers it quotes (`chunk_id` is then the passage holding them). So list `citations` as the sources even if the text has no `[n]`. An answer that says it could not find anything has **no** citations: show the `files` cards as "possibly related" instead |
 | `done` | `{message_id, tokens_in, tokens_out, took_ms, stopped, failed}` |
 | `error` | `{code: LLM_NOT_READY / LLM_START_FAILED / MODEL_NOT_INSTALLED / INTERNAL_ERROR, message, details}` (then `done`) |
 

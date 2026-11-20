@@ -312,6 +312,26 @@ def test_answer_that_names_the_file_still_gets_its_source(env):
     assert [x["name"] for x in ev["sources"]["citations"]] == ["Mietvertrag_2024.pdf"]
 
 
+def test_answer_without_marker_is_cited_by_the_numbers_it_quotes(env):
+    c, _, _ = env
+    sid = c.post("/api/v1/chat/sessions", json={}).json()["id"]
+    text, ev = _ask(c, sid, "NUMBERS_ONLY Mietvertrag Miete Kaution")
+    assert "[" not in text and "Mietvertrag" not in text
+    cites = ev["sources"]["citations"]
+    assert [x["name"] for x in cites] == ["Mietvertrag_2024.pdf"]
+    # it points at a passage that really holds the numbers, so the client can show and highlight it
+    chunks = c.get(f"/api/v1/files/{cites[0]['file_id']}/chunks?limit=50").json()["items"]
+    quoted = next(ch["text"] for ch in chunks if ch["id"] == cites[0]["chunk_id"])
+    assert "950,00" in quoted and "2.850,00" in quoted
+
+
+def test_numbers_that_are_in_no_source_cite_nothing(env):
+    c, _, _ = env
+    sid = c.post("/api/v1/chat/sessions", json={}).json()["id"]
+    _, ev = _ask(c, sid, "UNKNOWN_NUMBERS Mietvertrag Miete")
+    assert ev["sources"]["citations"] == []
+
+
 def test_undated_sources_are_labelled(env):
     c, _, llm = env
     sid = c.post("/api/v1/chat/sessions", json={}).json()["id"]

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from app.errors import AppError
-from app.services.chat import _interleave, is_refusal
+from app.services.chat import _interleave, canon_number, is_refusal, number_set
 from app.services.files import short_summary
 from app.services.local_models import default_roots
 from app.services.hardware import compute_tier
@@ -207,6 +207,20 @@ def test_interleave_keeps_the_best_hit_of_each_list():
     original = [{"chunk_id": 9, "file_id": 20}, {"chunk_id": 1, "file_id": 10}]
     out = _interleave([rewritten, original], "chunk_id", 5, max_per_file=2)
     assert [x["chunk_id"] for x in out] == [1, 9, 2]  # #1 of each list first, no duplicates, max 2 per file
+
+
+@pytest.mark.parametrize("token, canon", [
+    ("2.850,00", "2850"), ("2,850.00", "2850"), ("2850", "2850"), ("2.850", "2850"),
+    ("950,00", "950"), ("950", "950"), ("7,90", "7.9"), ("7.90", "7.9"), ("89,50", "89.5"),
+    ("1.000.000", "1000000"), ("3", None), ("2024", None),
+])
+def test_canon_number(token, canon):
+    assert canon_number(token) == canon
+
+
+def test_number_set_compares_german_and_english_styles():
+    assert number_set("Die Kaution beträgt 2.850,00 Euro (seit 2024, in 3 Raten).") == {"2850"}
+    assert number_set("a deposit of 2,850 EUR") == number_set("Kaution 2.850,00 €") == {"2850"}
 
 
 def test_local_model_roots_respect_opt_out(tmp_path, monkeypatch):

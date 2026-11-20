@@ -84,6 +84,35 @@ def is_refusal(text: str) -> bool:
     return bool(_REFUSAL.search(text or ""))
 
 
+_NUM = re.compile(r"\d[\d.,]*\d|\d")
+
+
+def canon_number(token: str) -> str | None:
+    """One form for a number written in any style, so an answer and a passage can be compared:
+    "2.850,00" / "2,850.00" / "2850" -> "2850", "7,90" / "7.90" -> "7.9". None for single digits and bare years,
+    which are too common to tell sources apart."""
+    t = token.strip(".,")
+    if "." in t and "," in t:  # both separators: the last one is the decimal point
+        dec, thou = (".", ",") if t.rfind(".") > t.rfind(",") else (",", ".")
+        t = t.replace(thou, "").replace(dec, ".")
+    elif "." in t or "," in t:
+        sep = "." if "." in t else ","
+        parts = t.split(sep)
+        # "2.850" / "1,000,000" group thousands; "7,90" / "3.5" are decimals
+        t = t.replace(sep, "") if len(parts) > 2 or len(parts[1]) == 3 else t.replace(sep, ".")
+    try:
+        v = float(t)
+    except ValueError:
+        return None
+    if v == int(v) and (v < 10 or (1900 <= v <= 2099 and t.isdigit())):
+        return None
+    return f"{v:.2f}".rstrip("0").rstrip(".")
+
+
+def number_set(text: str) -> set[str]:
+    return {c for c in (canon_number(t) for t in _NUM.findall(text or "")) if c}
+
+
 def _interleave(lists: list[list[dict[str, Any]]], key: str, limit: int,
                 max_per_file: int | None = None) -> list[dict[str, Any]]:
     """Merge ranked lists (search for the rewritten and for the original question) by taking turns:
@@ -306,6 +335,30 @@ class ChatService:
         return top >= RETRY_MIN_SCORE and top >= nxt * RETRY_LEAD
 
     @staticmethod
+    def _cite_by_numbers(answer: str, labelled: list[dict[str, Any]],
+                         chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """For an answer with no [n] marker and no file name: credit each number it quotes (950,00, 2.850,00) to
+        the best-ranked source whose passages contain it, pointing at the passage that holds most of them (page
+        text before the AI summary). A number that is in no source cites nothing."""
+        wanted = number_set(answer)
+        if not wanted:
+            return []
+        n_of = {c["file_id"]: c["n"] for c in labelled}
+        owner: dict[str, int] = {}
+        best: dict[int, tuple[tuple[int, bool], dict[str, Any]]] = {}
+        for ch in chunks:
+            n = n_of.get(ch["file_id"])
+            hits = number_set(ch["text"]) & wanted if n is not None else set()
+            if not hits:
+                continue
+            for num in hits:
+                owner[num] = min(owner.get(num, n), n)
+            key = (len(hits), ch.get("source") != "summary")
+            if n not in best or key > best[n][0]:
+                best[n] = (key, ch)
+        return [{**best[n][1], "n": n} for n in sorted(set(owner.values()))]
+
+    @staticmethod
     def _retry_hint(top: dict[str, Any]) -> str:
         return (f"Note: source [{top['n']}] ({top['name']}) is the closest match in the user's files. If it is "
                 "related to the question, describe what it shows and cite it. Only if it is unrelated, say you "
@@ -420,16 +473,18 @@ class ChatService:
                 # An answer that says it found nothing must not cite files; clients show the files event instead.
                 if not is_refusal(answer):
                     by_n = {c["n"]: c for c in labelled}
-                    numbers = parse_citations(answer)
-                    if not numbers:  # the model sometimes names the file instead of writing [n]
+                    picked = [by_n[n] for n in parse_citations(answer) if n in by_n]
+                    if not picked:  # the model sometimes names the file instead of writing [n]
                         low = answer.lower()
-                        numbers = [c["n"] for c in labelled if c["name"].lower() in low]
-                    for n in numbers:
-                        c = by_n.get(n)
-                        if c:
-                            citations.append({"n": n, "file_id": c["file_id"], "chunk_id": c["chunk_id"],
-                                              "page": c["page"], "name": c["name"], "rel_path": c["rel_path"],
-                                              "score": round(c["score"], 5)})
+                        picked = [c for c in labelled if c["name"].lower() in low]
+                    if not picked:  # ... or writes no marker at all: credit the source that holds its numbers
+                        picked = self._cite_by_numbers(answer, labelled, chunks)
+                        if picked:
+                            log.info("chat_cited_by_numbers", sources=[c["n"] for c in picked])
+                    for c in picked:
+                        citations.append({"n": c["n"], "file_id": c["file_id"], "chunk_id": c["chunk_id"],
+                                          "page": c["page"], "name": c["name"], "rel_path": c["rel_path"],
+                                          "score": round(c["score"], 5)})
             yield "sources", {"citations": citations}
         except AppError as e:
             failed = True
