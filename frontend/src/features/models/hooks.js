@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { sse } from "@/lib/sse";
-import { getCatalog, getRecommendations } from "./api";
+import { getCatalog, getLlmStatus, getRecommendations } from "./api";
 
 export function useCatalog() {
   return useQuery({ queryKey: qk.models, queryFn: ({ signal }) => getCatalog({ signal }) });
@@ -48,3 +48,10 @@ export function useDownloadProgress(enabled = true) {
 
   return progress;
 }
+
+export function useLlmStatus() {
+  return useQuery({ queryKey: qk.llmStatus, queryFn: ({ signal }) => getLlmStatus({ signal }) });
+}
+
+/** "Qwen2.5 3B Instruct (Q4_K_M)" → "Qwen2.5 3B Instruct": the file format in brackets means nothing to users. */
+export const plainModelName = (name = "") => name.replace(/\s*\([^)]*\)\s*$/, "");

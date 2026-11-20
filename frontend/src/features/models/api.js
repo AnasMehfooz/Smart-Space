@@ -8,3 +8,11 @@ export const getRecommendations = (opts) => api.get("/models/recommendations", o
 
 /** 202 {download_id}; progress arrives on /models/downloads/events */
 export const downloadModel = (id) => api.post(`/models/${encodeURIComponent(id)}/download`);
+
+/** {state: stopped/starting/ready/error, model_id, ctx, gpu_layers, backend, device, vram_used_mb, error} */
+export const getLlmStatus = (opts) => api.get("/models/llm/status", opts);
+
+export const cancelDownload = (id) => api.post(`/models/${encodeURIComponent(id)}/cancel`);
+
+/** Deletes a downloaded model that is not in use (409 MODEL_ACTIVE for the active one). */
+export const deleteModel = (id) => api.del(`/models/${encodeURIComponent(id)}`);

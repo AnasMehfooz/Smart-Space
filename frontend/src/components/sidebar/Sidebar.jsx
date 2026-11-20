@@ -1,10 +1,10 @@
 import { Link } from "react-router";
-import { Settings2 } from "lucide-react";
+import { Settings2, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FolderTree } from "./FolderTree";
 import { ScanStatus } from "./ScanStatus";
 
-/** Left margin index: logo, folder tree, scan status, setup. */
+/** Left margin index: logo, folder tree, scan status, then Settings and Privacy. */
 export function Sidebar({ rootPath, status, current, ...tree }) {
   const rootName = rootPath?.split(/[\\/]/).filter(Boolean).pop();
   return (
@@ -18,15 +18,24 @@ export function Sidebar({ rootPath, status, current, ...tree }) {
         <FolderTree rootName={rootName} {...tree} />
       </div>
 
-      <div className="space-y-4 border-t px-5 py-4">
+      <div className="border-t px-5 py-4">
         <ScanStatus status={status} current={current} />
-        <Link
-          to="/onboarding"
-          className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <Settings2 className="size-3.5" /> Setup
-        </Link>
       </div>
+      <nav aria-label="Pages" className="flex gap-1 border-t px-3 py-2">
+        <FooterLink to="/settings" Icon={Settings2} label="Settings" />
+        <FooterLink to="/privacy" Icon={ShieldCheck} label="Privacy" />
+      </nav>
     </aside>
+  );
+}
+
+function FooterLink({ to, Icon, label }) {
+  return (
+    <Link
+      to={to}
+      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    >
+      <Icon className="size-4" /> {label}
+    </Link>
   );
 }

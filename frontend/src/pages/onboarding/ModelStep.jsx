@@ -1,24 +1,29 @@
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Download, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCatalog, useDownloadProgress, useRecommendations } from "@/features/models/hooks";
-import { downloadModel } from "@/features/models/api";
+import { plainModelName, useCatalog, useDownloadProgress, useRecommendations } from "@/features/models/hooks";
+import { cancelDownload, downloadModel } from "@/features/models/api";
+import { useHardwareScan } from "@/features/system/hooks";
 import { formatBytes, formatDuration } from "@/lib/format";
 import { errorMessage } from "@/lib/errors";
+import { StepFrame } from "./StepFrame";
 
-/** What each part of the recommended set is for, in plain words. */
-const ROLE_TEXT = { embedding: "Search model", llm: "AI model for summaries and chat" };
+/** What each part of the recommended set does, in plain words. */
+const ROLE = {
+  embedding: { title: "Search", text: "Finds files by what they mean" },
+  llm: { title: "Answers and summaries", text: "Writes summaries and answers questions" },
+};
 
 /**
  * One recommendation for this PC = the search model + the language model, downloaded with one button.
+ * Everything the user needs to decide is visible before the click: total size, free space, that it resumes.
  * (OCR for photos and scans is bundled with the app.)
  */
 export default function ModelStep({ onNext, onBack }) {
   const rec = useRecommendations();
   const catalog = useCatalog();
+  const hw = useHardwareScan().data;
   const live = useDownloadProgress(true);
   const [startError, setStartError] = useState(null);
   const [starting, setStarting] = useState(false);
@@ -32,14 +37,22 @@ export default function ModelStep({ onNext, onBack }) {
   const allInstalled = models.length > 0 && models.every(installed);
   const downloading =
     !allInstalled && models.some((m) => m.status === "downloading" || ["queued", "progress"].includes(live[m.id]?.state));
+  const busy = downloading && failed.length === 0;
 
   const total = models.reduce((sum, m) => sum + (m.size_bytes ?? 0), 0);
+  const remaining = models.filter((m) => !installed(m)).reduce((sum, m) => sum + (m.size_bytes ?? 0), 0);
   const done = models.reduce((sum, m) => {
     if (installed(m)) return sum + (m.size_bytes ?? 0);
     return sum + (live[m.id]?.bytes_done ?? m.download?.bytes_done ?? 0);
   }, 0);
   const active = models.map((m) => live[m.id]).find((p) => p?.state === "progress");
   const percent = total ? Math.min(100, (done / total) * 100) : 0;
+  const free = hw?.disk_free_mb != null ? hw.disk_free_mb * 2 ** 20 : null;
+  const tooBig = free != null && remaining > free;
+  // The backend found identical copies already on this PC (another Smart Space, Hugging Face cache, Downloads…):
+  // they are checked and installed without the internet.
+  const missing = models.filter((m) => !installed(m));
+  const onThisPc = missing.length > 0 && missing.every((m) => m.local_copy);
 
   async function startDownload() {
     setStartError(null);
@@ -54,86 +67,118 @@ export default function ModelStep({ onNext, onBack }) {
     }
   }
 
+  async function cancel() {
+    for (const m of models) if (!installed(m)) await cancelDownload(m.id).catch(() => {});
+    await catalog.refetch();
+  }
+
+  let action;
+  if (allInstalled) {
+    action = (
+      <Button onClick={onNext}>
+        Continue <ArrowRight />
+      </Button>
+    );
+  } else if (busy) {
+    action = (
+      <>
+        <Button variant="ghost" onClick={cancel}>
+          Cancel
+        </Button>
+        <Button variant="secondary" disabled className="disabled:opacity-100 disabled:text-muted-foreground">
+          <Loader2 className="animate-spin text-ink-blue" /> Downloading…
+        </Button>
+      </>
+    );
+  } else {
+    action = (
+      <Button onClick={startDownload} disabled={loading || starting || tooBig}>
+        {starting ? <Loader2 className="animate-spin" /> : <Download />}
+        {failed.length ? "Try again" : onThisPc ? "Install from this PC" : `Download ${formatBytes(remaining)}`}
+      </Button>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">Your AI model</CardTitle>
-        <CardDescription>Recommended for this PC. It runs completely offline once downloaded.</CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {loading ? (
-          <div className="flex items-center gap-2 py-8 text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> Finding the best model for your PC…
-          </div>
-        ) : (
-          <>
-            <div className="rounded-xl border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-medium">
-                  <Sparkles className="size-4" /> Recommended set
-                </div>
-                <Badge variant={allInstalled ? "default" : "secondary"}>
-                  {allInstalled ? "Installed" : formatBytes(total)}
-                </Badge>
-              </div>
-              <ul className="space-y-2">
-                {models.map((m) => (
-                  <li key={m.id} className="flex items-center justify-between gap-4 text-sm">
-                    <div className="min-w-0">
-                      <p className="font-medium">{ROLE_TEXT[m.role] ?? m.role}</p>
-                      <p className="truncate text-muted-foreground">{m.display_name}</p>
-                    </div>
-                    <span className="flex shrink-0 items-center gap-1 text-muted-foreground">
-                      {installed(m) ? <CheckCircle2 className="size-4 text-primary" /> : formatBytes(m.size_bytes)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {(downloading || (done > 0 && !allInstalled)) && (
-              <div className="space-y-2">
-                <Progress value={percent} />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>
-                    {formatBytes(done)} of {formatBytes(total)}
-                  </span>
-                  {active && (
-                    <span>
-                      {formatBytes(active.speed_bps)}/s · {formatDuration(active.eta_s)} left
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {failed.length > 0 && (
-              <p className="text-sm text-destructive">
-                The download stopped{live[failed[0].id]?.message ? `: ${live[failed[0].id].message}` : ""}. Check the
-                internet connection and try again; it continues where it stopped.
-              </p>
-            )}
-            {startError && <p className="text-sm text-destructive">{errorMessage(startError)}</p>}
-          </>
-        )}
-      </CardContent>
-
-      <CardFooter className="justify-between">
+    <StepFrame
+      title={allInstalled ? "The AI models are ready" : "Download the AI models"}
+      lead="Picked for this PC. Downloaded once from Hugging Face; after that, everything works offline."
+      back={
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft /> Back
         </Button>
-        {allInstalled ? (
-          <Button onClick={onNext}>
-            Continue <ArrowRight />
-          </Button>
-        ) : (
-          <Button onClick={startDownload} disabled={loading || starting || (downloading && failed.length === 0)}>
-            {downloading && failed.length === 0 ? <Loader2 className="animate-spin" /> : <Download />}
-            {downloading && failed.length === 0 ? "Downloading…" : failed.length ? "Try again" : "Download"}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+      }
+      action={action}
+    >
+      {loading ? (
+        <p className="flex items-center gap-2 border-y py-6 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin text-ink-blue" /> Finding the best models for your PC…
+        </p>
+      ) : (
+        <>
+          <ul className="border-t">
+            {models.map((m) => (
+              <li key={m.id} className="flex items-center justify-between gap-6 border-b py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{ROLE[m.role]?.title ?? m.role}</p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {ROLE[m.role]?.text} · {plainModelName(m.display_name)}
+                  </p>
+                </div>
+                {installed(m) ? (
+                  <span className="flex shrink-0 items-center gap-1.5 text-sm">
+                    <Check className="size-4 text-ink-green" aria-hidden /> Installed
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-sm text-muted-foreground tabular-nums">{formatBytes(m.size_bytes)}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {!allInstalled && !busy && done === 0 && onThisPc && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Smart Space found these models on this PC already. It checks them and installs them, no download needed.
+            </p>
+          )}
+          {!allInstalled && !busy && done === 0 && !onThisPc && (
+            <p className="mt-4 text-sm text-muted-foreground tabular-nums">
+              {formatBytes(remaining)} in total
+              {free != null && ` · ${formatBytes(free)} free on this PC`} · resumes by itself if the connection drops.
+            </p>
+          )}
+          {tooBig && (
+            <p className="mt-2 text-sm text-ink-pink">
+              Not enough free space. Free up {formatBytes(remaining - free)} and try again.
+            </p>
+          )}
+
+          {(busy || (done > 0 && !allInstalled)) && (
+            <div className="mt-5 space-y-2">
+              <Progress value={percent} className="ink-progress" />
+              <div className="flex justify-between text-sm text-muted-foreground tabular-nums">
+                <span>
+                  {formatBytes(done)} of {formatBytes(total)}
+                </span>
+                {active && (
+                  <span>
+                    {formatBytes(active.speed_bps)}/s · {formatDuration(active.eta_s)} left
+                  </span>
+                )}
+              </div>
+              {busy && <p className="text-sm text-muted-foreground">You can go back meanwhile; the download continues.</p>}
+            </div>
+          )}
+
+          {failed.length > 0 && (
+            <p className="mt-4 text-sm text-ink-pink">
+              The download stopped{live[failed[0].id]?.message ? `: ${live[failed[0].id].message}` : ""}. Check the
+              internet connection and try again; it continues where it stopped.
+            </p>
+          )}
+          {startError && <p className="mt-4 text-sm text-ink-pink">{errorMessage(startError)}</p>}
+        </>
+      )}
+    </StepFrame>
   );
 }

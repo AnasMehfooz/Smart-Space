@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-19T19:38:32+00:00",
+  "generatedAt": "2026-11-20T12:00:00+00:00",
   "title": "Design System: Smart Space",
   "extensions": {
     "colorMeta": {
@@ -55,18 +55,36 @@
       "hairline": {
         "role": "neutral",
         "displayName": "Hairline",
-        "canonical": "#2a2d33",
-        "oklch": "oklch(29.7% 0.012 264.4)",
+        "canonical": "#33373e",
+        "oklch": "oklch(33.6% 0.013 261.7)",
         "tonalRamp": [
-          "#090b0f",
-          "#22252b",
-          "#3f4248",
-          "#5f6167",
-          "#808287",
-          "#a3a5a9",
-          "#c7c9cc",
+          "#0a0b0d",
+          "#24262a",
+          "#42454a",
+          "#5f636b",
+          "#7f838b",
+          "#a1a5ab",
+          "#c5c7cc",
           "#edeef1"
-        ]
+        ],
+        "note": "One step lighter than the first build (#2a2d33) so hairlines survive a projector."
+      },
+      "input-edge": {
+        "role": "neutral",
+        "displayName": "Input Edge",
+        "canonical": "#40444c",
+        "oklch": "oklch(38.6% 0.015 264.4)",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#24262a",
+          "#42454b",
+          "#5f636b",
+          "#7f838b",
+          "#a1a5ab",
+          "#c5c7cc",
+          "#edeef2"
+        ],
+        "note": "Lifted from #353840 with the hairline. Hover border, outline buttons, switch-off track."
       },
       "surface-raised": {
         "role": "neutral",
@@ -154,6 +172,10 @@
         "displayName": "Display",
         "purpose": "Onboarding welcome wordmark only."
       },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Settings and Privacy page title (22px); onboarding step titles use it at 24px."
+      },
       "title": {
         "displayName": "Title",
         "purpose": "Current breadcrumb segment, chat heading, sidebar wordmark."
@@ -170,13 +192,17 @@
         "displayName": "File Name",
         "purpose": "File names in rows; scan status title."
       },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Source chips, the 'Possibly related files' label, the welcome screen's sample source (13px)."
+      },
       "label": {
         "displayName": "Label",
-        "purpose": "Column headers, section labels, counts, scan meta, source chips; tabular figures."
+        "purpose": "Column headers, section labels, counts, scan meta, tour step count; tabular figures."
       },
       "citation": {
         "displayName": "Citation",
-        "purpose": "Yellow superscript source numeral after a cited fact."
+        "purpose": "Citation numeral in a small yellow-outlined tab (12px, ~1.1rem tall, outline yellow at 55%); fills yellow with ink-on text on hover."
       }
     },
     "globalFeatures": {
@@ -190,6 +216,16 @@
         "name": "floating-menu",
         "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(232 229 221 / 0.1)",
         "purpose": "Dropdown menus only (inherited from the component library); dialogs use the ring alone. Nothing on the ground has a shadow."
+      },
+      {
+        "name": "tour-card",
+        "value": "0 0 0 1px color-mix(in oklab, #e8e5dd 10%, transparent), 0 8px 24px -6px rgb(0 0 0 / 0.45)",
+        "purpose": "The tour card only: floating ring plus a deeper shadow over the dimmed window."
+      },
+      {
+        "name": "tour-scrim",
+        "value": "0 0 0 9999px rgb(10 11 13 / 0.62); outline: 1px solid color-mix(in oklab, #e8e5dd 22%, transparent)",
+        "purpose": "Tour spotlight cut-out: dims everything but the explained part of Home. Not a lift."
       }
     ],
     "focus": [
@@ -222,6 +258,11 @@
         "name": "scrollbar",
         "value": "scrollbar-width: thin; scrollbar-color: #34373e transparent; webkit: 10px, thumb #34373e with 3px ground border, radius 999px",
         "purpose": "All scroll areas."
+      },
+      {
+        "name": "cite-hover",
+        "value": "background: #efdf5a; color: #15171b",
+        "purpose": "Citation tab on hover, 120ms ease-out."
       }
     ],
     "motion": [
@@ -244,6 +285,21 @@
         "name": "menu-in",
         "value": "100ms fade + zoom 95%",
         "purpose": "Dropdown menu and dialog entry (component library)."
+      },
+      {
+        "name": "tour-glide",
+        "value": "420ms cubic-bezier(0.16, 1, 0.3, 1) on top/left/width/height",
+        "purpose": "Tour spotlight and card moving between steps; the one authored motion besides the wipe. None under reduced motion."
+      },
+      {
+        "name": "switch-thumb",
+        "value": "150ms cubic-bezier(0.16, 1, 0.3, 1); track 150ms ease-out",
+        "purpose": "Switch thumb slide and track colour. None under reduced motion."
+      },
+      {
+        "name": "quick-mark",
+        "value": "160ms (mark-in)",
+        "purpose": "Mark on the active quick-search row; shortened because the selection follows the arrow keys."
       }
     ],
     "breakpoints": [
@@ -261,6 +317,11 @@
         "name": "window-default",
         "value": "1200px x 800px",
         "purpose": "Default app window."
+      },
+      {
+        "name": "short",
+        "value": "@media (max-height: 640px)",
+        "purpose": "Custom variant `short:` for the 900x600 minimum window; tightens onboarding vertical spacing so the primary action stays above the fold."
       }
     ],
     "layout": {
@@ -268,7 +329,13 @@
       "chatWidth": "clamp(18rem, 29vw, 25rem)",
       "headerHeight": "4.25rem",
       "fileRowColumns": "1rem minmax(0, 1fr) minmax(0, 1.1fr) 1.75rem",
-      "fileRowColumnsNarrow": "1rem minmax(9rem, 1.4fr) minmax(0, 1fr) 1.75rem"
+      "fileRowColumnsNarrow": "1rem minmax(9rem, 1.4fr) minmax(0, 1fr) 1.75rem",
+      "sidebarFooter": "hairline, scan status, hairline, then Settings and Privacy links side by side (muted, md corners, Muted fill on hover)",
+      "pageColumn": "max-width 46rem, 32px side padding, 40px top (Settings, Privacy)",
+      "pageSectionGap": "40px",
+      "pageRow": "hairline-ruled, 14px vertical padding, title/description left, controls right",
+      "onboardingColumn": "max-width 34rem",
+      "quickSearchLine": "3.5rem"
     },
     "highlighterSwipe": {
       "path": "M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z",
@@ -285,7 +352,7 @@
       },
       "longClaimThreshold": 160
     },
-    "coverage": "Coverage: this system was set by the Home window (sidebar, file list, chat). Onboarding shares the tokens but was only re-tokened, not redesigned: it still uses bordered card containers and a step indicator that fills done steps with yellow, which this document does not adopt. There is no light theme; every value here is the dark theme."
+    "coverage": "Coverage: this system was set by the Home window (sidebar, file list, chat) and then extended, on the same grammar, to Onboarding, the Settings and Privacy pages, the first-time tour, the first-close dialog and the quick-search widget. Onboarding no longer uses card containers or a yellow-filled step indicator. There is no light theme; every value here is the dark theme."
   },
   "components": [
     {
@@ -310,7 +377,7 @@
       "refersTo": "button-outline",
       "description": "Hairline-bordered action on the ground: Stop / Resume scanning, Load more.",
       "html": "<button class=\"ds-btn-outline\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"2\"/></svg> Stop scanning</button>",
-      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 2rem; padding: 0 10px; border-radius: 0.5rem; border: 1px solid transparent; font-size: 0.875rem; font-weight: 500; font-family: 'Geist Variable', system-ui, sans-serif; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out; height: 1.75rem; font-size: 0.8rem; border-color: var(--input, #353840); background: color-mix(in oklab, var(--input, #353840) 30%, transparent); color: var(--foreground, #e8e5dd); } .ds-btn-outline:hover { background: color-mix(in oklab, var(--input, #353840) 50%, transparent); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 2rem; padding: 0 10px; border-radius: 0.5rem; border: 1px solid transparent; font-size: 0.875rem; font-weight: 500; font-family: 'Geist Variable', system-ui, sans-serif; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out; height: 1.75rem; font-size: 0.8rem; border-color: var(--input, #40444c); background: color-mix(in oklab, var(--input, #40444c) 30%, transparent); color: var(--foreground, #e8e5dd); } .ds-btn-outline:hover { background: color-mix(in oklab, var(--input, #40444c) 50%, transparent); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
     },
     {
       "name": "Ghost Button",
@@ -324,9 +391,9 @@
       "name": "Highlighter Mark",
       "kind": "custom",
       "refersTo": "mark",
-      "description": "The signature: a flat drawn swipe behind text, wiped in once. Yellow for selected / cited, green for done.",
-      "html": "<p class=\"ds-mark-demo\">The deposit is <span class=\"ds-mark\">two months’ cold rent, due before the keys are handed over</span><sup class=\"ds-cite\">1</sup>. <span class=\"ds-mark ds-mark--green\">Scanning completed</span></p>",
-      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-mark-demo { font-family: 'Geist Variable', system-ui, sans-serif; font-size: 15px; line-height: 1.65; color: var(--foreground, #e8e5dd); margin: 0; } .ds-cite { font-size: 11px; font-weight: 600; color: var(--ink-yellow, #efdf5a); font-variant-numeric: tabular-nums; margin: 0 2px; }"
+      "description": "The signature: a flat drawn swipe behind text, wiped in once, with the citation tab after a cited fact. Yellow for selected / cited, green for done.",
+      "html": "<p class=\"ds-mark-demo\">The deposit is <span class=\"ds-mark\">two months’ cold rent, due before the keys are handed over</span><span class=\"ds-cite\">1</span>. <span class=\"ds-mark ds-mark--green\">Scanning completed</span></p>",
+      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-mark-demo { font-family: 'Geist Variable', system-ui, sans-serif; font-size: 15px; line-height: 1.65; color: var(--foreground, #e8e5dd); margin: 0; } .ds-cite { display: inline-flex; align-items: center; justify-content: center; min-width: 1.15rem; height: 1.1rem; margin: 0 0.15rem; padding: 0 0.28rem; vertical-align: 0.2em; border: 1px solid color-mix(in oklab, var(--ink-yellow, #efdf5a) 55%, transparent); border-radius: 0.3rem; color: var(--ink-yellow, #efdf5a); font-size: 12px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; transition: background-color 120ms ease-out, color 120ms ease-out; } .ds-cite:hover { background: var(--ink-yellow, #efdf5a); color: var(--ink-on, #15171b); }"
     },
     {
       "name": "File Row",
@@ -334,7 +401,7 @@
       "refersTo": "file-row",
       "description": "One file per line on a hairline rule: icon, name, description, actions revealed on hover.",
       "html": "<ul class=\"ds-file-list\"><li class=\"ds-file-row\" tabindex=\"0\"><svg class=\"ds-file-row__icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg><span class=\"ds-file-row__name\">Mietvertrag_Wohnung.pdf</span><span class=\"ds-file-row__desc\">Rental agreement, 850 € cold rent, starts 1 March</span><button class=\"ds-file-row__menu\" aria-label=\"More actions\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/></svg></button></li><li class=\"ds-file-row is-selected\" tabindex=\"0\"><svg class=\"ds-file-row__icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg><span class=\"ds-file-row__name\"><span class=\"ds-mark\">Rechnung_Laptop.pdf</span></span><span class=\"ds-file-row__desc\">Invoice for a laptop, 1,249 €</span><button class=\"ds-file-row__menu\" aria-label=\"More actions\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/></svg></button></li></ul>",
-      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-file-list { list-style: none; margin: 0; padding: 0; font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); } .ds-file-row { display: grid; grid-template-columns: 1rem minmax(0, 1fr) minmax(0, 1.1fr) 1.75rem; align-items: center; gap: 0.875rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border, #2a2d33); transition: background-color 120ms ease-out; } .ds-file-row:hover { background: #1b1e23; } .ds-file-row:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-file-row__icon { color: var(--muted-foreground, #9c988f); } .ds-file-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: 0.875rem; } .ds-file-row__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground, #9c988f); font-size: 0.875rem; } .ds-file-row__menu { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: transparent; color: var(--muted-foreground, #9c988f); opacity: 0; transition: opacity 120ms ease-out; cursor: pointer; } .ds-file-row:hover .ds-file-row__menu, .ds-file-row.is-selected .ds-file-row__menu, .ds-file-row__menu:focus-visible { opacity: 1; } .ds-file-row__menu:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
+      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-file-list { list-style: none; margin: 0; padding: 0; font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); } .ds-file-row { display: grid; grid-template-columns: 1rem minmax(0, 1fr) minmax(0, 1.1fr) 1.75rem; align-items: center; gap: 0.875rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border, #33373e); transition: background-color 120ms ease-out; } .ds-file-row:hover { background: #1b1e23; } .ds-file-row:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-file-row__icon { color: var(--muted-foreground, #9c988f); } .ds-file-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: 0.875rem; } .ds-file-row__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground, #9c988f); font-size: 0.875rem; } .ds-file-row__menu { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 0.5rem; background: transparent; color: var(--muted-foreground, #9c988f); opacity: 0; transition: opacity 120ms ease-out; cursor: pointer; } .ds-file-row:hover .ds-file-row__menu, .ds-file-row.is-selected .ds-file-row__menu, .ds-file-row__menu:focus-visible { opacity: 1; } .ds-file-row__menu:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
     },
     {
       "name": "Folder Tree",
@@ -342,7 +409,7 @@
       "refersTo": "sidebar",
       "description": "Margin-index navigation: the open folder carries the yellow mark, counts in tabular figures, status dots in their ink.",
       "html": "<nav class=\"ds-tree\" aria-label=\"Folders\"><p class=\"ds-tree__label\">Folders</p><button class=\"ds-tree__row\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"/></svg><span><span class=\"ds-mark\">Uni</span></span><span class=\"ds-tree__count\">9</span></button><ul class=\"ds-tree__children\"><li><button class=\"ds-tree__row ds-tree__file\">Lecture_03.pdf<span class=\"ds-dot ds-dot--done\"></span></button></li><li><button class=\"ds-tree__row ds-tree__file\">Notes_week4.md<span class=\"ds-dot ds-dot--busy\"></span></button></li></ul><button class=\"ds-tree__row\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"/></svg><span>Work</span><span class=\"ds-tree__count\">6</span></button></nav>",
-      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-tree { font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); width: 15rem; } .ds-tree__label { font-size: 0.75rem; color: var(--muted-foreground, #9c988f); margin: 0 0 8px; padding: 0 8px; } .ds-tree__row { display: flex; width: 100%; align-items: center; gap: 8px; padding: 6px 8px; border: 0; border-radius: 0.4rem; background: transparent; color: inherit; font: inherit; font-size: 0.875rem; text-align: left; cursor: pointer; transition: background-color 120ms ease-out; } .ds-tree__row svg { color: var(--muted-foreground, #9c988f); flex-shrink: 0; } .ds-tree__row:hover { background: #1b1e23; } .ds-tree__row:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-tree__count { margin-left: auto; font-size: 0.75rem; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-tree__children { list-style: none; margin: 0 0 0 1.05rem; padding: 0 0 0 4px; border-left: 1px solid var(--border, #2a2d33); } .ds-tree__file { color: var(--muted-foreground, #9c988f); padding-left: 1.75rem; } .ds-tree__file:hover { color: var(--foreground, #e8e5dd); } .ds-dot { margin-left: auto; width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; } .ds-dot--done { background: var(--ink-green, #86d39a); } .ds-dot--busy { background: var(--ink-blue, #86c3ea); animation: ds-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; } @keyframes ds-pulse { 50% { opacity: 0.5; } } @media (prefers-reduced-motion: reduce) { .ds-dot--busy { animation: none; } }"
+      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-tree { font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); width: 15rem; } .ds-tree__label { font-size: 0.75rem; color: var(--muted-foreground, #9c988f); margin: 0 0 8px; padding: 0 8px; } .ds-tree__row { display: flex; width: 100%; align-items: center; gap: 8px; padding: 6px 8px; border: 0; border-radius: 0.4rem; background: transparent; color: inherit; font: inherit; font-size: 0.875rem; text-align: left; cursor: pointer; transition: background-color 120ms ease-out; } .ds-tree__row svg { color: var(--muted-foreground, #9c988f); flex-shrink: 0; } .ds-tree__row:hover { background: #1b1e23; } .ds-tree__row:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-tree__count { margin-left: auto; font-size: 0.75rem; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-tree__children { list-style: none; margin: 0 0 0 1.05rem; padding: 0 0 0 4px; border-left: 1px solid var(--border, #33373e); } .ds-tree__file { color: var(--muted-foreground, #9c988f); padding-left: 1.75rem; } .ds-tree__file:hover { color: var(--foreground, #e8e5dd); } .ds-dot { margin-left: auto; width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; } .ds-dot--done { background: var(--ink-green, #86d39a); } .ds-dot--busy { background: var(--ink-blue, #86c3ea); animation: ds-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; } @keyframes ds-pulse { 50% { opacity: 0.5; } } @media (prefers-reduced-motion: reduce) { .ds-dot--busy { animation: none; } }"
     },
     {
       "name": "Scan Status",
@@ -350,7 +417,7 @@
       "refersTo": "sidebar",
       "description": "Foot of the margin index: blue while working with a 3px bar, green mark when completed.",
       "html": "<div class=\"ds-scan\"><div class=\"ds-scan__head\"><svg class=\"ds-scan__icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21.801 10A10 10 0 1 1 17 3.335\"/><path d=\"m9 11 3 3L22 4\"/></svg><p class=\"ds-scan__title\"><span class=\"ds-mark ds-mark--green\">Scanning completed</span></p></div><p class=\"ds-scan__meta\">17 indexed · 1 can’t be read</p><div class=\"ds-scan__bar\"><span style=\"width: 62%\"></span></div><p class=\"ds-scan__meta\">The bar shows while scanning (blue).</p></div>",
-      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-scan { display: grid; gap: 0.625rem; font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); width: 15rem; } .ds-scan__head { display: flex; align-items: flex-start; gap: 10px; } .ds-scan__icon { margin-top: 2px; flex-shrink: 0; color: var(--ink-green, #86d39a); } .ds-scan__title { margin: 0; font-size: 0.875rem; font-weight: 500; } .ds-scan__meta { margin: 0; font-size: 0.75rem; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-scan__bar { height: 3px; background: var(--border, #2a2d33); overflow: hidden; } .ds-scan__bar span { display: block; height: 100%; background: var(--ink-blue, #86c3ea); }"
+      "css": ".ds-mark { color: var(--ink-on, #15171b); background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%23efdf5a'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-size: 100% 92%; background-position: 0 78%; -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 0.32em; animation: ds-mark-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-mark--green { background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2.6 3.4C30 2.1 66 1.5 97.2 2.6l2.4 5.1-1.5 4.3.9 5.6C70 18.4 33 19.2 1.4 18.3L.2 12.1 1.6 8z' fill='%2386d39a'/%3E%3C/svg%3E\"); } @keyframes ds-mark-in { from { background-size: 0% 92%; } } @media (prefers-reduced-motion: reduce) { .ds-mark { animation: none; } } .ds-scan { display: grid; gap: 0.625rem; font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); width: 15rem; } .ds-scan__head { display: flex; align-items: flex-start; gap: 10px; } .ds-scan__icon { margin-top: 2px; flex-shrink: 0; color: var(--ink-green, #86d39a); } .ds-scan__title { margin: 0; font-size: 0.875rem; font-weight: 500; } .ds-scan__meta { margin: 0; font-size: 0.75rem; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-scan__bar { height: 3px; background: var(--border, #33373e); overflow: hidden; } .ds-scan__bar span { display: block; height: 100%; background: var(--ink-blue, #86c3ea); }"
     },
     {
       "name": "Chat Composer",
@@ -358,7 +425,7 @@
       "refersTo": "chat-composer",
       "description": "Pinned question field: card surface, xl corners; focus turns the border yellow and steps the surface up.",
       "html": "<form class=\"ds-composer\" onsubmit=\"return false\"><textarea class=\"ds-composer__field\" rows=\"2\" aria-label=\"Your question\" placeholder=\"Ask something about your files…\"></textarea><button class=\"ds-composer__send\" type=\"submit\" aria-label=\"Send\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 12 7-7 7 7\"/><path d=\"M12 19V5\"/></svg></button></form>",
-      "css": ".ds-composer { display: flex; align-items: flex-end; gap: 8px; padding: 8px; border: 1px solid var(--border, #2a2d33); border-radius: 0.7rem; background: var(--card, #1a1c21); width: 22rem; transition: border-color 120ms ease-out, background-color 120ms ease-out; } .ds-composer:focus-within { border-color: color-mix(in oklab, var(--ink-yellow, #efdf5a) 70%, transparent); background: var(--popover, #1d2025); } .ds-composer__field { flex: 1; resize: none; border: 0; outline: none; background: transparent; color: var(--foreground, #e8e5dd); caret-color: var(--ink-yellow, #efdf5a); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; padding: 4px 6px; } .ds-composer__field::placeholder { color: #8a867e; } .ds-composer__send { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 2rem; padding: 0 10px; border-radius: 0.5rem; border: 1px solid transparent; font-size: 0.875rem; font-weight: 500; font-family: 'Geist Variable', system-ui, sans-serif; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out; width: 2rem; padding: 0; background: var(--secondary, #23262c); color: var(--muted-foreground, #9c988f); } .ds-composer__field:not(:placeholder-shown) + .ds-composer__send { background: var(--ink-yellow, #efdf5a); color: var(--ink-on, #15171b); } .ds-composer__send:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
+      "css": ".ds-composer { display: flex; align-items: flex-end; gap: 8px; padding: 8px; border: 1px solid var(--border, #33373e); border-radius: 0.7rem; background: var(--card, #1a1c21); width: 22rem; transition: border-color 120ms ease-out, background-color 120ms ease-out; } .ds-composer:focus-within { border-color: color-mix(in oklab, var(--ink-yellow, #efdf5a) 70%, transparent); background: var(--popover, #1d2025); } .ds-composer__field { flex: 1; resize: none; border: 0; outline: none; background: transparent; color: var(--foreground, #e8e5dd); caret-color: var(--ink-yellow, #efdf5a); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.875rem; padding: 4px 6px; } .ds-composer__field::placeholder { color: #8a867e; } .ds-composer__send { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 2rem; padding: 0 10px; border-radius: 0.5rem; border: 1px solid transparent; font-size: 0.875rem; font-weight: 500; font-family: 'Geist Variable', system-ui, sans-serif; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out; width: 2rem; padding: 0; background: var(--secondary, #23262c); color: var(--muted-foreground, #9c988f); } .ds-composer__field:not(:placeholder-shown) + .ds-composer__send { background: var(--ink-yellow, #efdf5a); color: var(--ink-on, #15171b); } .ds-composer__send:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; }"
     },
     {
       "name": "Source Chip",
@@ -366,12 +433,20 @@
       "refersTo": "source-chip",
       "description": "One per cited file under an answer: number, icon, name, page; lands on the file when clicked.",
       "html": "<button class=\"ds-source\"><span class=\"ds-source__n\">1</span><svg class=\"ds-source__icon\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg><span class=\"ds-source__name\">Mietvertrag_Wohnung.pdf</span><span class=\"ds-source__page\">p. 2</span></button>",
-      "css": ".ds-source { display: flex; align-items: center; gap: 8px; width: 20rem; padding: 6px 10px; border: 1px solid var(--border, #2a2d33); border-radius: 0.4rem; background: transparent; color: var(--foreground, #e8e5dd); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 0.75rem; text-align: left; cursor: pointer; transition: border-color 120ms ease-out; } .ds-source:hover { border-color: var(--input, #353840); } .ds-source:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-source__n { font-weight: 500; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-source__icon { color: var(--muted-foreground, #9c988f); flex-shrink: 0; } .ds-source__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-source__page { margin-left: auto; color: var(--muted-foreground, #9c988f); flex-shrink: 0; }"
+      "css": ".ds-source { display: flex; align-items: center; gap: 8px; width: 20rem; padding: 6px 10px; border: 1px solid var(--border, #33373e); border-radius: 0.4rem; background: transparent; color: var(--foreground, #e8e5dd); font-family: 'Geist Variable', system-ui, sans-serif; font-size: 13px; text-align: left; cursor: pointer; transition: border-color 120ms ease-out; } .ds-source:hover { border-color: var(--input, #40444c); } .ds-source:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-source__n { font-weight: 500; color: var(--muted-foreground, #9c988f); font-variant-numeric: tabular-nums; } .ds-source__icon { color: var(--muted-foreground, #9c988f); flex-shrink: 0; } .ds-source__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-source__page { margin-left: auto; color: var(--muted-foreground, #9c988f); flex-shrink: 0; }"
+    },
+    {
+      "name": "Switch, Segmented and Keys",
+      "kind": "custom",
+      "refersTo": "switch-on",
+      "description": "Settings controls. Switch on = yellow (selected); the chosen segmented option is raised graphite, never inked; keys are raised graphite with a hairline.",
+      "html": "<div class=\"ds-controls\"><button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Start with Windows\"><span class=\"ds-switch__thumb\"></span></button><button class=\"ds-switch\" role=\"switch\" aria-checked=\"false\" aria-label=\"Off\"><span class=\"ds-switch__thumb\"></span></button><div class=\"ds-segmented\" role=\"radiogroup\" aria-label=\"When you close the window\"><button class=\"ds-segmented__item\" role=\"radio\" aria-checked=\"false\">Ask</button><button class=\"ds-segmented__item\" role=\"radio\" aria-checked=\"true\">Keep in tray</button><button class=\"ds-segmented__item\" role=\"radio\" aria-checked=\"false\">Quit</button></div><span class=\"ds-keys\"><kbd class=\"ds-kbd\">Alt</kbd><kbd class=\"ds-kbd\">Space</kbd></span></div>",
+      "css": ".ds-controls { display: flex; align-items: center; gap: 16px; font-family: 'Geist Variable', system-ui, sans-serif; color: var(--foreground, #e8e5dd); } .ds-switch { position: relative; flex-shrink: 0; width: 1.75rem; height: 1rem; padding: 0; border: 0; border-radius: 9999px; background: var(--input, #40444c); cursor: pointer; transition: background-color 150ms ease-out; } .ds-switch[aria-checked=\"true\"] { background: var(--ink-yellow, #efdf5a); } .ds-switch__thumb { position: absolute; top: 2px; left: 2px; width: 0.75rem; height: 0.75rem; border-radius: 9999px; background: var(--foreground, #e8e5dd); transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-switch[aria-checked=\"true\"] .ds-switch__thumb { transform: translateX(0.75rem); background: var(--ink-on, #15171b); } .ds-switch:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-segmented { display: inline-flex; padding: 2px; gap: 2px; border: 1px solid var(--border, #33373e); border-radius: 0.5rem; } .ds-segmented__item { padding: 0.25rem 0.6rem; border: 0; border-radius: calc(0.5rem - 2px); background: transparent; font: inherit; font-size: 0.8125rem; color: var(--muted-foreground, #9c988f); cursor: pointer; transition: background-color 120ms ease-out, color 120ms ease-out; } .ds-segmented__item:hover { color: var(--foreground, #e8e5dd); } .ds-segmented__item[aria-checked=\"true\"] { background: var(--secondary, #23262c); color: var(--foreground, #e8e5dd); font-weight: 500; } .ds-segmented__item:focus-visible { outline: 2px solid var(--ink-yellow, #efdf5a); outline-offset: 2px; } .ds-keys { display: inline-flex; gap: 4px; } .ds-kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; height: 1.25rem; padding: 0 0.35rem; border: 1px solid var(--border, #33373e); border-radius: 0.25rem; background: var(--secondary, #23262c); color: var(--foreground, #e8e5dd); font-family: inherit; font-size: 12px; line-height: 1; } @media (prefers-reduced-motion: reduce) { .ds-switch, .ds-switch__thumb { transition: none; } }"
     }
   ],
   "narrative": {
     "northStar": "Highlighter Ink",
-    "overview": "The folder reads like pages the user has already marked up. Everything sits on a matte graphite ground in warm paper-white type, separated by hairline rules rather than cards or shadows. Colour is almost absent until something matters: the open folder, the selected file, a cited fact in a chat answer, a finished scan. Then a flat highlighter swipe is drawn behind the words, the way a student marks a printout.\n\nDensity is that of a calm file manager: one file per line, a margin index on the left, a reading column for answers on the right. The interface frames the user's files and stays out of the way; motion is limited to short state changes and the one wipe of the highlighter. The system deliberately refuses the category default of grey cards with one glowing accent: inks are flat, never glows, and each ink has exactly one job.",
+    "overview": "The folder reads like pages the user has already marked up. Everything sits on a matte graphite ground in warm paper-white type, separated by hairline rules rather than cards or shadows. Colour is almost absent until something matters: the open folder, the selected file, a cited fact in a chat answer, a finished scan. Then a flat highlighter swipe is drawn behind the words, the way a student marks a printout.\n\nDensity is that of a calm file manager: one file per line, a margin index on the left, a reading column for answers on the right. The interface frames the user's files and stays out of the way; motion is limited to short state changes, the one wipe of the highlighter, and the first-time tour's spotlight gliding on the same curve. The system deliberately refuses the category default of grey cards with one glowing accent: inks are flat, never glows, and each ink has exactly one job.",
     "keyCharacteristics": [
       "Matte graphite ground, warm paper-white text, hairline rules for structure.",
       "Four flat highlighter inks, each bound to a single meaning.",
@@ -418,22 +493,27 @@
       }
     ],
     "dos": [
-      "Do use the highlighter mark for exactly four things: the open folder, the selected file, a cited fact, and a completed scan.",
+      "Do use the highlighter mark for exactly three kinds of thing: the current selection (open folder, selected file, open Settings / Privacy page, current onboarding step, active quick-search row), a cited fact, and a completed scan.",
       "Do keep every ink to its one job: yellow selected / cited, green done, pink removed / failed, blue in progress.",
       "Do separate content with 1px Hairline rules and the graphite surface steps.",
       "Do list files as one-line ruled rows (icon · name · description · ⋯) and let the name column win when space is narrow.",
       "Do set every count and citation numeral in tabular figures.",
       "Do let side columns flex with `clamp()` (sidebar 13.5–17.5rem, chat 18–25rem) so the window works down to 900×600.",
       "Do make the swipe static and drop row transitions under `prefers-reduced-motion`.",
-      "Do fall back to plain graphite for unavailable controls instead of a faded ink."
+      "Do fall back to plain graphite for unavailable controls instead of a faded ink.",
+      "Do set the chosen option of a segmented control in raised graphite, and reserve yellow for a switch that is on.",
+      "Do colour every progress bar blue (`--progress-ink: var(--ink-blue)`); a bar is \"in progress\".",
+      "Do say in a confirm dialog exactly what goes and what stays before the pink button."
     ],
     "donts": [
-      "Don't put files or panels in cards, or give anything on the ground a shadow; shadows belong only to floating menus.",
+      "Don't put files or panels in cards, or give anything on the ground a shadow; shadows belong only to floating layers (menus, the tour card).",
       "Don't render an ink as a glow, gradient or blurred halo; marks are flat swipes behind text.",
       "Don't use yellow for \"done\" or green for \"selected\"; that breaks the one-job inks.",
       "Don't mark more than the cited claim; long claims get only their last sentence marked.",
       "Don't swipe the same selection twice (the tree brightens the selected file, the list marks it).",
-      "Don't style text selection like a highlighter mark."
+      "Don't style text selection like a highlighter mark.",
+      "Don't ink matched search words; brighten them. The mark belongs to the selected row.",
+      "Don't add motion beyond state changes, the wipe and the tour's glide."
     ]
   }
 }

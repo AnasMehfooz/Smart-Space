@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { ChevronRight, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -8,6 +9,10 @@ import { useWorkspace } from "@/features/workspace/hooks";
 import { useFileActions, useFiles } from "@/features/files/hooks";
 import { useIndexEvents, useIndexStatus } from "@/features/index/hooks";
 import { errorMessage } from "@/lib/errors";
+import { onAppEvent } from "@/lib/tauri";
+import { PREF, getPref, setPref } from "@/lib/prefs";
+import { Tour } from "@/components/Tour";
+import { useQuickShortcut } from "@/features/desktop/hooks";
 
 const parentOf = (relPath) => (relPath.includes("/") ? relPath.slice(0, relPath.lastIndexOf("/")) : null);
 
@@ -19,6 +24,15 @@ export default function Home() {
   const [folder, setFolder] = useState(null); // relative folder shown in the middle, null = everything
   const [selectedId, setSelectedId] = useState(null);
   const [notice, setNotice] = useState(null);
+  const shortcut = useQuickShortcut().data ?? "Alt+Space";
+
+  // First visit (or "Take the tour again" in Settings): the 3-step tour.
+  const location = useLocation();
+  const [touring, setTouring] = useState(() => !!location.state?.tour || getPref(PREF.tourSeen) !== "1");
+  function endTour() {
+    setPref(PREF.tourSeen, "1");
+    setTouring(false);
+  }
 
   // File actions with errors shown in the notice bar (e.g. "This file no longer exists.").
   const raw = useFileActions();
@@ -39,6 +53,9 @@ export default function Home() {
     setFolder(relPath ? parentOf(relPath) : null);
     setSelectedId(fileId);
   }
+  // "Show in Smart Space" from the quick-search widget.
+  useEffect(() => onAppEvent("show-file", (p) => showFile(p.file_id, p.rel_path)), []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (selectedId == null) return;
     const t = setTimeout(() => {
@@ -80,15 +97,43 @@ export default function Home() {
           </div>
         )}
 
-        <section className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+        <section data-tour="files" className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
           <FileList folder={folder} selectedId={selectedId} onSelect={setSelectedId} actions={actions} />
         </section>
       </main>
 
-      <ChatPanel onOpenFile={(id) => showFile(id, allFiles.find((f) => f.id === id)?.rel_path)} examples={examples} />
+      <ChatPanel
+        onOpenFile={(id) => showFile(id, allFiles.find((f) => f.id === id)?.rel_path)}
+        examples={examples}
+        reading={status && ["scanning", "indexing"].includes(status.state) ? status : null}
+      />
+
+      {touring && <Tour steps={tourSteps(shortcut)} onClose={endTour} />}
     </div>
   );
 }
+
+/** The first-time tour: files, chat, quick search. One idea per step, in the product's own words. */
+const tourSteps = (shortcut) => [
+  {
+    target: '[data-tour="files"]',
+    place: "inside",
+    title: "Your folder, read for you",
+    body: "Every file gets a one-line summary as it is read. Hover a file for the full summary; double-click to open it. The tree on the left shows one folder at a time.",
+  },
+  {
+    target: '[data-tour="chat"]',
+    place: "left",
+    title: "Ask your files",
+    body: "Ask in English or German. The facts an answer uses are marked like a highlighter, and the number next to each takes you to its file.",
+  },
+  {
+    target: null, // nothing on screen: quick search lives outside this window
+    place: "center",
+    title: "Find a file from anywhere",
+    body: `Press ${shortcut.replace("+", " + ")} in any app to search without opening this window. Enter opens the file.`,
+  },
+];
 
 function Breadcrumb({ rootPath, folder, onSelect }) {
   const rootName = rootPath?.split(/[\\/]/).filter(Boolean).pop() ?? "Files";
@@ -169,9 +214,11 @@ function FileList({ folder, selectedId, onSelect, actions }) {
         <span>Name</span>
         <span className="flex min-w-0 justify-between gap-3">
           <span className="truncate">Description</span>
-          <span className="shrink-0 whitespace-nowrap tabular-nums">
-            {total} {total === 1 ? "file" : "files"}
-          </span>
+          {files.isSuccess && (
+            <span className="shrink-0 whitespace-nowrap tabular-nums">
+              {total} {total === 1 ? "file" : "files"}
+            </span>
+          )}
         </span>
         <span />
       </div>

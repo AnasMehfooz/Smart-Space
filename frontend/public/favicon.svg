@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Smart Space app icon: the logo mark. A yellow highlighter tile, tilted -3deg with four different
+       corner radii (like the logo in the app), carrying a graphite "folder + magnifier" glyph.
+       Source for `npx tauri icon app-icon.svg` (regenerates src-tauri/icons). -->
+  <g transform="rotate(-3 512 512)">
+    <path fill="#efdf5a" d="M262 104 H603 A325 325 0 0 1 928 429 V738 A186 186 0 0 1 742 924 H375 A279 279 0 0 1 96 645 V270 A166 166 0 0 1 262 104 Z"/>
+    <g transform="translate(262 262) scale(20.8)" fill="none" stroke="#15171b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.7 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v4.1"/>
+      <path d="m21 21-1.9-1.9"/>
+      <circle cx="17" cy="17" r="3"/>
+    </g>
+  </g>
+</svg>

@@ -9,7 +9,7 @@ import { FileIcon } from "./FileIcon";
  * `examples`: suggested questions. Specific ones work best; the AI answers from matching passages, so
  * "What is this folder about?" usually finds nothing.
  */
-export function ChatPanel({ onOpenFile, examples = [] }) {
+export function ChatPanel({ onOpenFile, examples = [], reading = null }) {
   const { messages, busy, send, stop, reset } = useChat();
   const [input, setInput] = useState("");
   const endRef = useRef(null);
@@ -25,7 +25,7 @@ export function ChatPanel({ onOpenFile, examples = [] }) {
   }
 
   return (
-    <aside className="flex w-[clamp(16rem,29vw,25rem)] shrink-0 flex-col border-l" aria-label="Ask your files">
+    <aside data-tour="chat" className="flex w-[clamp(16rem,29vw,25rem)] shrink-0 flex-col border-l" aria-label="Ask your files">
       <div className="flex h-[4.25rem] shrink-0 items-center justify-between px-5">
         <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Ask your files</h2>
         {messages.length > 0 && (
@@ -42,6 +42,16 @@ export function ChatPanel({ onOpenFile, examples = [] }) {
               Ask in English or German. Answers come only from your files, and the facts they use are marked with
               their source.
             </p>
+            {reading && (
+              // The first scan: the user can ask already, with honest expectations.
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Smart Space is still reading your folder (
+                <span className="tabular-nums">
+                  {reading.indexed + reading.skipped + reading.errors} of {reading.total}
+                </span>
+                ). You can ask already; answers get better as more files are read.
+              </p>
+            )}
             {examples.length > 0 && (
               <div className="flex flex-col gap-1.5">
                 {examples.map((q) => (
@@ -143,7 +153,7 @@ function AssistantMessage({ message: m, onOpenFile }) {
       )}
       {m.error && <p className="text-xs text-destructive">{m.error}</p>}
 
-      {sources.length > 0 && notFound && <p className="text-xs text-muted-foreground">Possibly related files:</p>}
+      {sources.length > 0 && notFound && <p className="text-[13px] text-muted-foreground">Possibly related files:</p>}
       {sources.length > 0 && (
         <ul className="flex flex-col gap-1">
           {sources.map((c) => (
@@ -151,7 +161,7 @@ function AssistantMessage({ message: m, onOpenFile }) {
               <button
                 onClick={() => onOpenFile?.(c.file_id)}
                 title={c.rel_path}
-                className="flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors hover:border-input"
+                className="flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-[13px] transition-colors hover:border-input"
               >
                 <span className="font-medium text-muted-foreground tabular-nums">{c.n}</span>
                 <FileIcon ext={c.name?.split(".").pop()} className="size-3.5 shrink-0 text-muted-foreground" />
@@ -167,14 +177,14 @@ function AssistantMessage({ message: m, onOpenFile }) {
           (e.g. "coffee payments" vs. a receipt). Never leave that as a dead end: offer the best matches. */}
       {!m.pending && !m.searchOnly && sources.length === 0 && m.files?.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs text-muted-foreground">Possibly related files:</p>
+          <p className="text-[13px] text-muted-foreground">Possibly related files:</p>
           <ul className="flex flex-col gap-1">
             {m.files.slice(0, 3).map((f) => (
               <li key={f.file_id}>
                 <button
                   onClick={() => onOpenFile?.(f.file_id)}
                   title={f.rel_path}
-                  className="flex w-full items-center gap-2 rounded-md border border-dashed px-2.5 py-1.5 text-left text-xs transition-colors hover:border-input"
+                  className="flex w-full items-center gap-2 rounded-md border border-dashed px-2.5 py-1.5 text-left text-[13px] transition-colors hover:border-input"
                 >
                   <FileIcon ext={f.ext} kind={f.kind} className="size-3.5 shrink-0 text-muted-foreground" />
                   <span className="truncate">{f.name}</span>
@@ -218,7 +228,7 @@ function AnswerText({ text, byNumber, onOpenFile, marks = true }) {
           onClick={() => c && onOpenFile?.(c.file_id)}
           title={c ? c.rel_path : undefined}
           aria-label={c ? `Source ${cite[1]}: ${c.name}` : `Source ${cite[1]}`}
-          className="mx-0.5 align-super text-[11px] font-semibold text-ink-yellow tabular-nums hover:underline"
+          className="cite"
         >
           {cite[1]}
         </button>

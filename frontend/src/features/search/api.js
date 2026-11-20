@@ -9,3 +9,10 @@ export const EMPTY_FILTERS = { ext: [], kind: null, folder: null, tags: [], doc_
  */
 export const search = (query, filters = EMPTY_FILTERS, limit = 20, opts) =>
   api.post("/search", { query, mode: "full", filters: { ...EMPTY_FILTERS, ...filters }, limit }, opts);
+
+/**
+ * Quick search for the widget: at most 6 files, fast.
+ * → {results: [{file_id, rel_path, name, ext, kind, score, snippet: {text, page} | null}]}
+ */
+export const quickSearch = (query, opts) =>
+  api.post("/search", { query, mode: "quick", filters: EMPTY_FILTERS, limit: 6 }, opts);

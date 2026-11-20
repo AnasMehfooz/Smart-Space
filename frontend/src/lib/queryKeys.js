@@ -10,4 +10,11 @@ export const qk = {
   files: (filters) => ["files", "list", filters],
   tree: (parent) => ["files", "tree", parent],
   file: (id) => ["files", "detail", id],
+  quickSearch: (q) => ["search", "quick", q],
+  autostart: ["desktop", "autostart"],
+  quickShortcut: ["desktop", "quick-shortcut"],
+  privacyOverview: ["privacy", "overview"],
+  privacyAudit: ["privacy", "audit"],
+  llmStatus: ["models", "llm-status"],
+  systemInfo: ["system", "info"],
 };

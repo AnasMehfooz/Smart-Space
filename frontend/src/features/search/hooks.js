@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { search, EMPTY_FILTERS } from "./api";
+import { qk } from "@/lib/queryKeys";
+import { quickSearch, search, EMPTY_FILTERS } from "./api";
 
 /** The value, but only after it stopped changing for `ms`. */
 export function useDebounced(value, ms = 250) {
@@ -20,5 +21,18 @@ export function useSearch(query, filters = EMPTY_FILTERS) {
     queryFn: ({ signal }) => search(q, filters, 20, { signal }),
     enabled: q.length > 0,
     placeholderData: keepPreviousData,
+  });
+}
+
+/** The widget's search: shorter debounce, keeps the last results while typing, retries while the backend starts. */
+export function useQuickSearch(query) {
+  const q = useDebounced(query.trim(), 120);
+  return useQuery({
+    queryKey: qk.quickSearch(q),
+    queryFn: ({ signal }) => quickSearch(q, { signal }),
+    enabled: q.length > 0,
+    placeholderData: keepPreviousData,
+    retry: (n, e) => e?.code === "BACKEND_UNREACHABLE" && n < 20,
+    retryDelay: 1000,
   });
 }

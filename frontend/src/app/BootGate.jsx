@@ -11,10 +11,13 @@ export function BootGate({ children }) {
     <FullScreenMessage title={health.data ? "Smart Space is starting…" : "Starting Smart Space…"}>
       {slow && (
         <p className="max-w-md text-sm text-muted-foreground">
-          This is taking longer than usual. The app starts its backend by itself; check the{" "}
-          <code className="rounded bg-muted px-1 py-0.5">npm run tauri dev</code> terminal for a{" "}
-          <code className="rounded bg-muted px-1 py-0.5">[smart-space]</code> error. This screen continues by itself
-          once the backend answers.
+          This is taking longer than usual. If nothing happens within a minute, quit Smart Space from the tray icon and
+          open it again.
+          {import.meta.env.DEV && (
+            <span className="mt-2 block text-xs">
+              Developers: look for a [smart-space] error in the npm run tauri dev terminal.
+            </span>
+          )}
         </p>
       )}
     </FullScreenMessage>

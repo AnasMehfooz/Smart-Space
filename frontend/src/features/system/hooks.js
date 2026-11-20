@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
-import { getHealth, scanHardware } from "./api";
+import { getHealth, getSystemInfo, scanHardware } from "./api";
 
 /** Polls /health every second until the backend says ready. */
 export function useHealth() {
@@ -19,4 +19,8 @@ export function useHardwareScan() {
     queryFn: ({ signal }) => scanHardware({ signal }),
     staleTime: Infinity,
   });
+}
+
+export function useSystemInfo() {
+  return useQuery({ queryKey: qk.systemInfo, queryFn: ({ signal }) => getSystemInfo({ signal }), staleTime: 60_000 });
 }

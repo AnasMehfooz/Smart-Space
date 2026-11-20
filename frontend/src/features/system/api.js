@@ -11,3 +11,6 @@ export async function scanHardware(opts) {
   await api.post("/system/hardware/scan", undefined, opts);
   return getHardware(opts);
 }
+
+/** {version, data_dir, db_size_bytes, vectors_size_bytes, models_size_bytes, python, platform, logs_dir, uptime_s} */
+export const getSystemInfo = (opts) => api.get("/system/info", opts);

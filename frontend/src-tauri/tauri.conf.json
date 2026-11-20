@@ -18,7 +18,8 @@
         "height": 800,
         "minWidth": 900,
         "minHeight": 600,
-        "backgroundColor": "#15171b"
+        "backgroundColor": "#15171b",
+        "visible": false
       }
     ],
     "security": {
@@ -27,13 +28,24 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "nsis"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "Smart Space",
+    "shortDescription": "Find anything in your files by asking. Runs on this PC.",
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "compression": "zlib",
+        "displayLanguageSelector": false
+      }
+    }
   }
 }

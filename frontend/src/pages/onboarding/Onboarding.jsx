@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
+import { useWorkspace } from "@/features/workspace/hooks";
+import { hasActiveEmbedding, useCatalog } from "@/features/models/hooks";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
@@ -10,28 +14,41 @@ import FolderStep from "./FolderStep";
 const STEPS = [
   { label: "Welcome", Component: WelcomeStep },
   { label: "Your PC", Component: HardwareStep },
-  { label: "AI model", Component: ModelStep },
+  { label: "AI models", Component: ModelStep },
   { label: "Folder", Component: FolderStep },
 ];
 
-/** Welcome → hardware check → recommended model + download → pick folder → Home. */
+/** Welcome → hardware check → recommended models + download → pick a folder → Home. Same ground and rules as Home. */
 export default function Onboarding() {
   const [step, setStep] = useState(0);
   const { Component } = STEPS[step];
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
+  // Run again from Settings: Smart Space is already set up, so offer the way back.
+  // Both hooks run on every render (a short-circuit here would skip one and crash React after a reset).
+  const workspace = useWorkspace().data;
+  const catalog = useCatalog().data;
+  const ready = !!workspace && hasActiveEmbedding(catalog);
 
   return (
-    <main className="flex min-h-screen flex-col bg-muted/40">
+    <main className="relative flex min-h-screen flex-col bg-background">
+      {ready && (
+        <Link
+          to="/"
+          className="absolute top-4 right-6 z-10 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Back to files
+        </Link>
+      )}
       {step > 0 && (
-        <header className="flex items-center justify-between px-8 py-5">
+        <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b px-6 py-4">
           <Logo />
           <StepIndicator current={step} />
-          <div className="w-32" />
+          <span />
         </header>
       )}
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="w-full max-w-xl">
+      <div className="flex flex-1 items-center justify-center px-6 py-10 short:py-4">
+        <div className="w-full max-w-[34rem]">
           <Component onNext={next} onBack={back} />
         </div>
       </div>
@@ -39,28 +56,28 @@ export default function Onboarding() {
   );
 }
 
+/** Done steps: green check (done). Current step: the yellow mark (selected). Later steps: muted. */
 function StepIndicator({ current }) {
   return (
-    <ol className="flex items-center gap-2 text-sm">
+    <ol className="flex items-center gap-3 text-sm" aria-label="Setup steps">
       {STEPS.slice(1).map((s, i) => {
         const index = i + 1;
         const done = index < current;
         const active = index === current;
         return (
-          <li key={s.label} className="flex items-center gap-2">
-            {i > 0 && <span className="h-px w-8 bg-border" />}
-            <span
-              className={cn(
-                "flex size-6 items-center justify-center rounded-full border text-xs",
-                done && "border-primary bg-primary text-primary-foreground",
-                active && "border-primary text-foreground",
-                !done && !active && "text-muted-foreground",
+          <Fragment key={s.label}>
+            {i > 0 && <li aria-hidden className="h-px w-6 bg-border" />}
+            <li className="flex items-center gap-1.5" aria-current={active ? "step" : undefined}>
+              {done ? (
+                <Check className="size-4 text-ink-green" aria-label="Done:" />
+              ) : (
+                <span className={cn("text-xs tabular-nums", !active && "text-muted-foreground")}>{index}</span>
               )}
-            >
-              {done ? <Check className="size-3.5" /> : index}
-            </span>
-            <span className={cn(active ? "font-medium" : "text-muted-foreground")}>{s.label}</span>
-          </li>
+              <span className={cn(done && "text-foreground", !done && !active && "text-muted-foreground")}>
+                {active ? <span className="mark font-medium">{s.label}</span> : s.label}
+              </span>
+            </li>
+          </Fragment>
         );
       })}
     </ol>
