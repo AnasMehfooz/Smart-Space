@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from app.errors import AppError
+from app.services.chat import _interleave, is_refusal
 from app.services.files import short_summary
+from app.services.local_models import default_roots
 from app.services.hardware import compute_tier
 from app.services.llm_runner import compute_gpu_layers, fallback_layers, kv_cache_mb, parse_devices
 from app.services.paths import ExclusionMatcher, is_within, safe_join, validate_workspace_root
@@ -185,3 +187,34 @@ def test_short_summary_cuts_at_word_boundary():
     out = short_summary(long)
     assert len(out) <= 160 and out.endswith("…") and out[:-1].endswith("Mietvertrag")
     assert len(short_summary("x" * 400)) == 160  # no space to cut at: hard cut
+
+
+@pytest.mark.parametrize("text, refusal", [
+    ("I could not find your coffee payments in the indexed files.", True),
+    ("I couldn't find anything about that.", True),
+    ("Ich konnte keine Informationen über Kaffeezahlungen finden.", True),
+    ("Dazu habe ich nichts in den Dateien gefunden.", True),
+    ("Your monthly rent is 950 Euro. [1]", False),
+    ("Die Kaution beträgt 2.850 Euro, die in drei Raten zu leisten ist. [1]", False),
+    ("The receipt shows a cappuccino for 3.50 EUR. [1]", False),
+])
+def test_is_refusal(text, refusal):
+    assert is_refusal(text) is refusal
+
+
+def test_interleave_keeps_the_best_hit_of_each_list():
+    rewritten = [{"chunk_id": 1, "file_id": 10}, {"chunk_id": 2, "file_id": 10}, {"chunk_id": 3, "file_id": 10}]
+    original = [{"chunk_id": 9, "file_id": 20}, {"chunk_id": 1, "file_id": 10}]
+    out = _interleave([rewritten, original], "chunk_id", 5, max_per_file=2)
+    assert [x["chunk_id"] for x in out] == [1, 9, 2]  # #1 of each list first, no duplicates, max 2 per file
+
+
+def test_local_model_roots_respect_opt_out(tmp_path, monkeypatch):
+    extra = tmp_path / "models"
+    extra.mkdir()
+    monkeypatch.setenv("SS_MODEL_DIRS", str(extra))
+    monkeypatch.setenv("SS_LOCAL_MODEL_SEARCH", "0")
+    assert default_roots(tmp_path / "own") == [extra]
+    monkeypatch.setenv("SS_LOCAL_MODEL_SEARCH", "1")
+    assert extra not in default_roots(extra)  # our own models folder is never searched
+
