@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from app.errors import AppError
-from app.services.chat import _interleave, canon_number, is_refusal, number_set
+from app.services.chat import AmountFixer, _interleave, canon_number, is_refusal, number_set
 from app.services.files import short_summary
 from app.services.local_models import default_roots
 from app.services.summarizer import strip_keywords, summary_passage
@@ -222,6 +222,15 @@ def test_canon_number(token, canon):
 def test_number_set_compares_german_and_english_styles():
     assert number_set("Die Kaution beträgt 2.850,00 Euro (seit 2024, in 3 Raten).") == {"2850"}
     assert number_set("a deposit of 2,850 EUR") == number_set("Kaution 2.850,00 €") == {"2850"}
+
+
+def test_amount_fixer_restores_the_source_spelling_while_streaming():
+    fixer = AmountFixer(["Netto-Verdienst 1.042,29 Auszahlungsbetrag 982,90 im Oktober 2026"])
+    pieces = ["Your net pay was 1,04", "2,29 EUR [1], paid out 982.", "90 in October 2026 and 123,45 extra."]
+    out = "".join(fixer.feed(p) for p in pieces) + fixer.flush()
+    # garbled -> the source's own form; a correct English form, the year, [1] and an unknown number stay
+    assert out == "Your net pay was 1.042,29 EUR [1], paid out 982.90 in October 2026 and 123,45 extra."
+    assert fixer.fixed == 1
 
 
 def test_month_names_are_searched_in_both_languages():
